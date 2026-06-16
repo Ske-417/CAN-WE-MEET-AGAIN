@@ -1,24 +1,37 @@
-
-</main>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAN WE MEET AGAIN</title>
+  <link rel="icon" href="./assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <div id="site-loading" class="site-loading" aria-live="polite">
+      <div class="site-loading-inner">
+        <p class="site-loading-tag">INITIALIZING FACILITY ARCHIVE</p>
+        <p class="site-loading-copy">誰かにとっての出勤通知は、別の誰かにとっての出荷通知でもある。</p>
+        <div class="site-loading-line"></div>
+      </div>
+    </div>
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+    <main class="game-layout">
       <section class="game-frame">
         <div id="game"></div>
-        <div id="boot-overlay" class="boot-overlay">
-          <div class="boot-card">
-            <p class="boot-tag">INITIALIZE OPERATOR PROFILE</p>
-            <h2>担当員識別名を入力してください</h2>
-            <p class="boot-copy">入力した名前が作中での呼び名になります。未入力なら「S-91」で開始します。</p>
-            <form id="boot-form" class="boot-form">
-              <input id="player-name" name="playerName" type="text" maxlength="12" autocomplete="off" placeholder="S-91">
-              <button type="submit">勤務開始</button>
-            </form>
-            <p class="boot-note">操作: クリック / `Enter` で進行、`A` AUTO、`S` SKIP、`L` LOG</p>
-          </div>
-        </div>
       </section>
     </main>
   </div>
 
   <script src="./VN-Engine.js"></script>
-  <script type="module" src="./game/main.js"></script>
+  <script src="./game/config.js"></script>
+  <script src="./game/data/backgrounds.js"></script>
+  <script src="./game/data/characters.js"></script>
+  <script src="./game/data/cultivation.js"></script>
+  <script src="./game/data/scenes.js"></script>
+  <script src="./game/build-script.js"></script>
+  <script src="./game/main.js"></script>
 </body>
 </html>

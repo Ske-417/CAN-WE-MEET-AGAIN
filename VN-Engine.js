@@ -201,6 +201,8 @@
         case 'narration':   this._showText(null, step.text);                                   break;
         case 'dialogue':    this._showText(step.char, step.text);                              break;
         case 'choice':      this._showChoice(step.options);                                    break;
+        case 'input':       this._showInput(step);                                             break;
+        case 'modal':       this._showModal(step);                                             break;
         case 'bg':          this._setBg(step.target, step.transition);   this._next();         break;
         case 'char_show':   this._charShow(step.char, step.position, step.sprite); this._next(); break;
         case 'char_hide':   this._charHide(step.char);                   this._next();         break;
@@ -217,6 +219,10 @@
       }
     }
 
+    _resolveValue(value) {
+      return typeof value === 'function' ? value(this.state.vars, this.state) : value;
+    }
+
     // ────────────────────────────────────────────────
     //  テキスト表示・タイプライター
     // ────────────────────────────────────────────────
@@ -224,9 +230,11 @@
     _showText(charId, text) {
       const chars = this.script.characters || {};
       const char  = charId ? chars[charId] : null;
+      const resolvedName = char ? this._resolveValue(char.name) : '';
+      const resolvedText = this._resolveValue(text);
 
-      if (char && char.name) {
-        this.els.name.textContent = char.name;
+      if (char && resolvedName) {
+        this.els.name.textContent = resolvedName;
         this.els.name.style.color   = char.nameColor || '#88aacc';
         this.els.name.style.visibility = 'visible';
       } else {
@@ -234,18 +242,18 @@
         this.els.name.style.visibility = 'hidden';
       }
 
-      this.state.history.push({ name: char?.name || '', text });
+      this.state.history.push({ name: resolvedName || '', text: resolvedText });
 
       this.els.text.textContent   = '';
       this.els.arrow.style.opacity = '0';
       this.state.typing   = true;
       this.state.waiting  = false;
-      this._currentText   = text;
+      this._currentText   = resolvedText;
 
       let i = 0;
       const tick = () => {
-        if (i < text.length) {
-          this.els.text.textContent = text.slice(0, ++i);
+        if (i < resolvedText.length) {
+          this.els.text.textContent = resolvedText.slice(0, ++i);
           const speed = this.state.skip ? 0 : this.cfg.typeSpeed;
           this._typeTimer = setTimeout(tick, speed);
         } else {
@@ -291,7 +299,7 @@
         if (opt.condition && !this._evalCond(opt.condition)) return;
         const btn = document.createElement('button');
         btn.className = 'vn-choice';
-        btn.textContent = opt.text;
+        btn.textContent = this._resolveValue(opt.text);
         btn.style.animationDelay = `${i * 85}ms`;
         btn.addEventListener('click', () => {
           box.style.display = 'none';
@@ -301,6 +309,63 @@
         });
         box.appendChild(btn);
       });
+    }
+
+    _showInput(step) {
+      this.els.arrow.style.opacity = '0';
+      this.els.dialogBox.style.opacity = '0.2';
+      this.els.inputLabel.textContent = this._resolveValue(step.label || '');
+      this.els.inputField.value = this._resolveValue(step.defaultValue || '');
+      this.els.inputField.placeholder = this._resolveValue(step.placeholder || '');
+      this.els.inputField.maxLength = step.maxLength || 24;
+      this.els.inputOk.textContent = this._resolveValue(step.buttonLabel || '決定');
+      this.els.inputOverlay.style.display = 'flex';
+
+      const submit = () => {
+        const value = this.els.inputField.value.trim() || this._resolveValue(step.defaultValue || '');
+        this.state.vars[step.name] = value;
+        this.els.inputOverlay.style.display = 'none';
+        this.els.dialogBox.style.opacity = '';
+        this.els.inputOk.removeEventListener('click', submit);
+        this.els.inputField.removeEventListener('keydown', onKeydown);
+        step.goto ? this.gotoScene(step.goto) : this._next();
+      };
+
+      const onKeydown = e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submit();
+        }
+      };
+
+      this.els.inputOk.addEventListener('click', submit);
+      this.els.inputField.addEventListener('keydown', onKeydown);
+      requestAnimationFrame(() => this.els.inputField.focus());
+    }
+
+    _showModal(step) {
+      this.els.arrow.style.opacity = '0';
+      this.els.dialogBox.style.opacity = '0.2';
+      this.els.modalTitle.textContent = this._resolveValue(step.title || '');
+      this.els.modalBody.innerHTML = '';
+
+      (step.body || []).forEach(block => {
+        const p = document.createElement('p');
+        p.textContent = this._resolveValue(block);
+        this.els.modalBody.appendChild(p);
+      });
+
+      this.els.modalButton.textContent = this._resolveValue(step.buttonLabel || '閉じる');
+      this.els.modalOverlay.style.display = 'flex';
+
+      const close = () => {
+        this.els.modalOverlay.style.display = 'none';
+        this.els.dialogBox.style.opacity = '';
+        this.els.modalButton.removeEventListener('click', close);
+        this._next();
+      };
+
+      this.els.modalButton.addEventListener('click', close);
     }
 
     // ────────────────────────────────────────────────
@@ -609,6 +674,20 @@
             <button class="vn-btn" id="_vnloadbtn">LOAD</button>
           </div>
         </div>
+        <div class="vn-input-overlay" id="_vninput" style="display:none">
+          <div class="vn-input-card">
+            <div class="vn-input-label" id="_vninputlabel"></div>
+            <input class="vn-input-field" id="_vninputfield" type="text" maxlength="24" autocomplete="off">
+            <button class="vn-input-ok" id="_vninputok" type="button">決定</button>
+          </div>
+        </div>
+        <div class="vn-modal-overlay" id="_vnmodal" style="display:none">
+          <div class="vn-modal-card">
+            <div class="vn-modal-title" id="_vnmodaltitle"></div>
+            <div class="vn-modal-body" id="_vnmodalbody"></div>
+            <button class="vn-modal-ok" id="_vnmodalok" type="button">閉じる</button>
+          </div>
+        </div>
         <div class="vn-panel" id="_vnhist" style="display:none">
           <div class="vn-panel-head">
             <span>テキスト履歴</span>
@@ -632,6 +711,14 @@
         text:           this.el.querySelector('#_vntext'),
         arrow:          this.el.querySelector('#_vnarrow'),
         choiceBox:      this.el.querySelector('#_vnchoices'),
+        inputOverlay:   this.el.querySelector('#_vninput'),
+        inputLabel:     this.el.querySelector('#_vninputlabel'),
+        inputField:     this.el.querySelector('#_vninputfield'),
+        inputOk:        this.el.querySelector('#_vninputok'),
+        modalOverlay:   this.el.querySelector('#_vnmodal'),
+        modalTitle:     this.el.querySelector('#_vnmodaltitle'),
+        modalBody:      this.el.querySelector('#_vnmodalbody'),
+        modalButton:    this.el.querySelector('#_vnmodalok'),
         btnAuto:        this.el.querySelector('#_vnauto'),
         btnSkip:        this.el.querySelector('#_vnskip'),
         histPanel:      this.el.querySelector('#_vnhist'),
@@ -737,7 +824,7 @@
       background:linear-gradient(90deg,transparent,rgba(74,143,181,.38),transparent);
     }
     .vn-name {
-      font-family:var(--font-ui,'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif);
+      font-family:var(--font-story,'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho',serif);
       font-size:13.5px; font-weight:700; letter-spacing:.12em;
       min-height:20px; margin-bottom:7px;
       text-shadow:0 0 14px currentColor;
@@ -763,8 +850,11 @@
       0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)}
     }
     .vn-choice-box {
-      flex-direction:column; align-items:center;
-      gap:8px; padding:6px 30px 0; margin-bottom:6px;
+      position:absolute; inset:0;
+      display:none; flex-direction:column; align-items:center; justify-content:center;
+      gap:10px; padding:30px;
+      background:rgba(2,6,12,.36);
+      backdrop-filter:blur(3px);
     }
     .vn-choice {
       width:100%; max-width:520px;
@@ -785,6 +875,82 @@
       border-color:rgba(74,160,225,.54);
       color:#d6eeff; transform:translateY(-2px);
       box-shadow:0 4px 20px rgba(38,100,200,.18);
+    }
+    .vn-input-overlay {
+      position:absolute; inset:0; z-index:40;
+      align-items:center; justify-content:center;
+      background:rgba(2,6,12,.72);
+      backdrop-filter:blur(5px);
+    }
+    .vn-input-card {
+      width:min(520px, calc(100% - 40px));
+      padding:22px;
+      border:1px solid rgba(74,143,181,.22);
+      background:rgba(6,12,22,.94);
+      box-shadow:0 0 40px rgba(0,30,80,.28);
+    }
+    .vn-input-label {
+      color:#d4e6f2;
+      font-size:15px; line-height:1.9;
+      margin-bottom:14px;
+      text-wrap:pretty;
+    }
+    .vn-input-field {
+      width:100%;
+      padding:12px 14px;
+      background:rgba(2,6,12,.82);
+      border:1px solid rgba(74,143,181,.22);
+      color:#edf4fa;
+      font-family:var(--font-ui,'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif);
+      font-size:14px;
+      outline:none;
+    }
+    .vn-input-ok {
+      margin-top:12px;
+      padding:10px 18px;
+      border:1px solid rgba(180,159,102,.34);
+      background:linear-gradient(135deg, rgba(79,96,111,.18), rgba(141,114,61,.22));
+      color:#f5f0e4;
+      font-family:var(--font-ui,'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif);
+      font-size:13px;
+      cursor:pointer;
+    }
+    .vn-modal-overlay {
+      position:absolute; inset:0; z-index:45;
+      align-items:center; justify-content:center;
+      background:rgba(2,6,12,.72);
+      backdrop-filter:blur(6px);
+    }
+    .vn-modal-card {
+      width:min(720px, calc(100% - 48px));
+      max-height:min(78vh, 720px);
+      padding:28px 28px 22px;
+      border:1px solid rgba(137, 142, 110, .28);
+      background:linear-gradient(180deg, rgba(228,222,202,.96), rgba(198,190,168,.93));
+      box-shadow:0 14px 60px rgba(0,0,0,.36);
+      color:#171a18;
+      overflow:auto;
+    }
+    .vn-modal-title {
+      font-family:var(--font-ui,'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif);
+      font-size:14px; letter-spacing:.16em;
+      margin-bottom:16px;
+      color:#3b4339;
+    }
+    .vn-modal-body p {
+      margin:0 0 14px;
+      font-size:15px; line-height:2;
+      color:#1e2320;
+    }
+    .vn-modal-ok {
+      margin-top:10px;
+      padding:10px 18px;
+      border:1px solid rgba(70,84,70,.28);
+      background:rgba(246,244,236,.78);
+      color:#222824;
+      font-family:var(--font-ui,'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif);
+      font-size:13px;
+      cursor:pointer;
     }
     @keyframes vn-fadein {
       from{opacity:0;transform:translateY(9px)}

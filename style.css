@@ -13,7 +13,7 @@ body {
     radial-gradient(circle at bottom right, rgba(170, 147, 95, 0.14), transparent 28%),
     linear-gradient(135deg, #081018 0%, #030507 48%, #090b12 100%);
   color: #d8e3eb;
-  font-family: "Shippori Mincho B1", serif;
+  font-family: var(--font-story);
   line-break: strict;
   word-break: auto-phrase;
 }
@@ -23,8 +23,8 @@ body {
 }
 
 :root {
-  --font-story: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --font-ui: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-story: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  --font-ui: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
 }
 
 .page-shell {
@@ -32,6 +32,70 @@ body {
   min-height: 100vh;
   padding: 16px;
   overflow: hidden;
+}
+
+.site-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(18, 34, 54, 0.28), transparent 24%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.96), rgba(3, 5, 9, 0.985));
+  opacity: 1;
+  transition: opacity 760ms ease;
+}
+
+.site-loading.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-loading-inner {
+  width: min(360px, calc(100% - 48px));
+}
+
+.site-loading-tag {
+  margin: 0 0 12px;
+  color: rgba(150, 181, 204, 0.76);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+}
+
+.site-loading-copy {
+  margin: 0 0 18px;
+  color: rgba(214, 225, 234, 0.68);
+  font-family: var(--font-story);
+  font-size: 15px;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.site-loading-line {
+  height: 1px;
+  background: rgba(74, 143, 181, 0.18);
+  overflow: hidden;
+  position: relative;
+}
+
+.site-loading-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(186, 220, 240, 0.82), transparent);
+  animation: loading-scan 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-scan {
+  0% {
+    transform: translateX(-140%);
+  }
+  100% {
+    transform: translateX(340%);
+  }
 }
 
 .ambient {
@@ -101,6 +165,13 @@ body {
     linear-gradient(180deg, rgba(6, 12, 20, 0.88), rgba(2, 5, 9, 0.96)),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 4px);
   z-index: 10;
+  opacity: 1;
+  transition: opacity 780ms ease;
+}
+
+.boot-overlay.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .boot-card {

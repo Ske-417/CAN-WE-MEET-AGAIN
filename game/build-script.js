@@ -1,15 +1,13 @@
-import { GAME_CONFIG } from './config.js';
-import { buildCharacters } from './data/characters.js';
-import { backgrounds } from './data/backgrounds.js';
-import { buildScenes } from './data/scenes.js';
-
-export function buildGameScript(playerName) {
-  return {
-    title: GAME_CONFIG.title,
-    subtitle: GAME_CONFIG.subtitle,
-    startScene: GAME_CONFIG.startScene,
-    characters: buildCharacters(playerName),
-    backgrounds,
-    scenes: buildScenes(playerName)
+(function (global) {
+  global.CWMA_buildGameScript = function buildGameScript() {
+    return {
+      title: global.CWMA_CONFIG.title,
+      subtitle: global.CWMA_CONFIG.subtitle,
+      startScene: global.CWMA_CONFIG.startScene,
+      characters: global.CWMA_buildCharacters(),
+      backgrounds: global.CWMA_BACKGROUNDS,
+      scenes: global.CWMA_buildScenes(),
+      cultivation: global.CWMA_buildCultivation()
+    };
   };
-}
+})(window);
