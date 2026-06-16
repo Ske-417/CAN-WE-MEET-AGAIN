@@ -24,7 +24,7 @@ body {
 
 :root {
   --font-story: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-  --font-ui: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  --font-ui: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
 }
 
 .page-shell {
@@ -60,7 +60,7 @@ body {
   margin: 0 0 12px;
   color: rgba(150, 181, 204, 0.76);
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 15px;
   letter-spacing: 0.22em;
 }
 
@@ -68,7 +68,7 @@ body {
   margin: 0 0 18px;
   color: rgba(214, 225, 234, 0.68);
   font-family: var(--font-story);
-  font-size: 15px;
+  font-size: 19px;
   line-height: 1.9;
   text-wrap: pretty;
 }
@@ -130,7 +130,7 @@ body {
 .boot-tag {
   margin: 0 0 8px;
   letter-spacing: 0.22em;
-  font-size: 11px;
+  font-size: 15px;
   color: rgba(149, 181, 204, 0.68);
   font-family: var(--font-ui);
   text-wrap: balance;
@@ -198,7 +198,7 @@ body {
 
 .boot-copy,
 .boot-note {
-  font-size: 13px;
+  font-size: 17px;
   line-height: 1.8;
   color: rgba(216, 227, 235, 0.76);
   font-family: var(--font-ui);
@@ -224,7 +224,7 @@ body {
   background: rgba(4, 8, 13, 0.85);
   color: #edf4fa;
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 18px;
   letter-spacing: 0.02em;
   outline: none;
 }
@@ -239,7 +239,7 @@ body {
   background: linear-gradient(135deg, rgba(79, 96, 111, 0.18), rgba(141, 114, 61, 0.22));
   color: #f5f0e4;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 17px;
   letter-spacing: 0.08em;
   cursor: pointer;
   white-space: nowrap;

@@ -1,10 +1,33 @@
 (function (global) {
-  function displayName(vars) {
+  function displayYukiName(vars) {
     return vars.namedYuki ? (vars.yukiName || 'ユキ') : 'J-7';
   }
 
-  function canSpeak(vars) {
+  function displayRenName(vars) {
+    return vars.namedRen ? (vars.renName || 'レン') : 'R-6';
+  }
+
+  function canYukiSpeak(vars) {
     return !!vars.yukiCanSpeak;
+  }
+
+  function canRenSpeak(vars) {
+    return !!vars.renCanSpeak;
+  }
+
+  function getYukiRoute(vars) {
+    if (!vars.yukiCanSpeak && (vars.yukiObedienceScore || 0) >= 10) return 'pet';
+    if ((vars.yukiLanguageScore || 0) >= 5 && (vars.yukiStressScore || 0) >= 6) return 'research';
+    if ((vars.yukiVitalityScore || 0) >= 9 && (vars.yukiObedienceScore || 0) >= 8) return 'labor';
+    if ((vars.yukiTrustScore || 0) >= 7) return 'care';
+    return 'medical';
+  }
+
+  function getRenRoute(vars) {
+    if ((vars.renLanguageScore || 0) >= 7 && (vars.renStressScore || 0) >= 6) return 'research';
+    if ((vars.renLanguageScore || 0) >= 7 && (vars.renObedienceScore || 0) >= 8) return 'education';
+    if ((vars.renTrustScore || 0) >= 8 && vars.reportedMap === false) return 'care';
+    return 'medical';
   }
 
   global.CWMA_buildScenes = function buildScenes() {
@@ -38,6 +61,7 @@
             placeholder: '署名を入力',
             defaultValue: 'S-91',
             maxLength: 12,
+            submitOnEnter: false,
             buttonLabel: '署名して向かう'
           },
           { type: 'narration', text: 'インクは少しだけ滲んだ。まだ読める。読めるうちに、もう後戻りはしない方がいい気がした。' },
@@ -77,9 +101,26 @@
         steps: [
           { type: 'bg', target: 'departure' },
           { type: 'char_show', char: 'yuki', position: 'center' },
-          { type: 'dialogue', char: 'yuki', text: 'もうすぐ、ここを出るって聞きました。空が見えるところですか。' },
+          {
+            type: 'dialogue',
+            char: 'yuki',
+            text: function (vars) {
+              if (vars.yukiConditioned) return 'もうすぐ、ここを出るって聞きました。……次の場所では、ちゃんとできますか。';
+              if (vars.yukiAttached) return 'もうすぐ、ここを出るって聞きました。空が見えるところでも、担当さんのこと思い出せますか。';
+              return 'もうすぐ、ここを出るって聞きました。空が見えるところですか。';
+            }
+          },
           { type: 'dialogue', char: 'player', text: '……。' },
-          { type: 'dialogue', char: 'yuki', text: '最初に来てくれた日のこと、ずっと覚えていたいです。担当さんも覚えていてくれますか。' },
+          {
+            type: 'dialogue',
+            char: 'yuki',
+            text: function (vars) {
+              if (vars.yukiConditioned) return '最初に来てくれた日のこと、忘れない方がいいですか。それとも、忘れた方が次の場所で楽ですか。';
+              if (vars.yukiAttached) return '最初に来てくれた日のこと、ずっと覚えていたいです。担当さんも覚えていてくれますか。';
+              if (vars.yukiStressScore >= 6) return 'ここで覚えたこと、次の場所でも役に立ちますか。……役に立つなら、少しだけ安心します。';
+              return '最初に来てくれた日のこと、ずっと覚えていたいです。担当さんも覚えていてくれますか。';
+            }
+          },
           { type: 'choice', options: [
             { text: '「覚えている」と答える', goto: 'promiseMemory', setVar: { name: 'promise', value: 'memory' } },
             { text: '答えられず黙る', goto: 'promiseSilence', setVar: { name: 'promise', value: 'silence' } },
@@ -91,8 +132,30 @@
         steps: [
           { type: 'bg', target: 'departure' },
           { type: 'char_show', char: 'yuki', position: 'center' },
-          { type: 'narration', text: '最後の面談で、J-7は膝の上のメモ用紙を何度も折り直していた。紙の端は湿って、もう少しで破れそうだった。' },
-          { type: 'narration', text: function (vars) { return '差し出された紙には、拙い字で「' + displayName(vars) + ' おぼえて くれる」とあった。'; } },
+          {
+            type: 'narration',
+            text: function (vars) {
+              if (vars.yukiLiterate) {
+                return '最後の面談で、J-7は膝の上のメモ用紙を何度も折り直していた。紙の端は湿って、もう少しで破れそうだった。';
+              }
+              if (vars.yukiSemiLiterate) {
+                return '最後の面談で、J-7は紙片に何度か線を重ね、うまく書けなかった部分を指で擦って消していた。';
+              }
+              return '最後の面談で、J-7は何も持たずに座っていた。ただ、あなたが入ってきてからは一度も視線を外さなかった。';
+            }
+          },
+          {
+            type: 'narration',
+            text: function (vars) {
+              if (vars.yukiLiterate) {
+                return '差し出された紙には、拙い字で「' + displayYukiName(vars) + ' おぼえて くれる」とあった。';
+              }
+              if (vars.yukiSemiLiterate) {
+                return '差し出された紙には、崩れた文字で「' + displayYukiName(vars) + '」と、その下に途切れた線だけが残っていた。言い切れない問いの跡のようだった。';
+              }
+              return 'J-7は自分の胸とあなたの名札を順番に指したあと、両手を合わせて離した。会話未満のしぐさでも、何を確かめたいのかだけは分かった。';
+            }
+          },
           { type: 'choice', options: [
             { text: '頷いて「覚えている」と伝える', goto: 'promiseMemory', setVar: { name: 'promise', value: 'memory' } },
             { text: '何も返せず沈黙する', goto: 'promiseSilence', setVar: { name: 'promise', value: 'silence' } },
@@ -106,15 +169,23 @@
           {
             type: 'dialogue',
             char: 'yuki',
-            condition: function (vars) { return canSpeak(vars); },
-            text: 'それならいいです。会えなくても、消えない方法がひとつ増えるから。'
+            condition: function (vars) { return canYukiSpeak(vars); },
+            text: function (vars) {
+              if (vars.yukiConditioned) return 'それなら、次の場所でも少しは耐えられる気がします。覚えてる人が一人いるなら。';
+              if (vars.yukiAttached) return 'それならいいです。会えなくても、消えない方法がひとつ増えるから。';
+              return 'それなら、ここでいたことが全部なくなるわけじゃないんですね。';
+            }
           },
           {
             type: 'narration',
-            condition: function (vars) { return !canSpeak(vars); },
-            text: 'J-7は紙を胸元で握りしめ、それから小さく頷いた。声がなくても、安堵の形だけは分かった。'
+            condition: function (vars) { return !canYukiSpeak(vars); },
+            text: function (vars) {
+              return vars.yukiLiterate || vars.yukiSemiLiterate
+                ? 'J-7は紙を胸元で握りしめ、それから小さく頷いた。声がなくても、安堵の形だけは分かった。'
+                : 'J-7は肩の力を抜き、胸元で組んでいた手をゆっくり下ろした。言葉はなくても、少しだけ呼吸が戻ったのが見えた。';
+            }
           },
-          { type: 'goto', target: 'endingRouter' }
+          { type: 'goto', target: 'chapterOneReportRouter' }
         ]
       },
       promiseSilence: {
@@ -123,15 +194,23 @@
           {
             type: 'dialogue',
             char: 'yuki',
-            condition: function (vars) { return canSpeak(vars); },
-            text: '困らせましたよね。ごめんなさい。でも、聞いてみたかったんです。'
+            condition: function (vars) { return canYukiSpeak(vars); },
+            text: function (vars) {
+              if (vars.yukiConditioned) return 'すみません。困らせる質問でしたよね。もう聞きません。';
+              if (vars.yukiAttached) return '困らせましたよね。ごめんなさい。でも、聞いてみたかったんです。';
+              return 'そうですよね。そういうこと、言えない場所ですもんね。';
+            }
           },
           {
             type: 'narration',
-            condition: function (vars) { return !canSpeak(vars); },
-            text: 'J-7は紙を裏返し、何も書かないまま膝に戻した。書けることより、書けないことの方が多い顔だった。'
+            condition: function (vars) { return !canYukiSpeak(vars); },
+            text: function (vars) {
+              return vars.yukiLiterate || vars.yukiSemiLiterate
+                ? 'J-7は紙を裏返し、何も書かないまま膝に戻した。書けることより、書けないことの方が多い顔だった。'
+                : 'J-7は一度だけ目を伏せ、それきり身じろぎもしなかった。伝える手段の少なさだけが、そのまま距離になって残った。';
+            }
           },
-          { type: 'goto', target: 'endingRouter' }
+          { type: 'goto', target: 'chapterOneReportRouter' }
         ]
       },
       promiseLie: {
@@ -140,58 +219,248 @@
           {
             type: 'dialogue',
             char: 'yuki',
-            condition: function (vars) { return canSpeak(vars); },
-            text: 'ほんとですか。じゃあ次に会ったら、外の色をもっと教えてください。'
+            condition: function (vars) { return canYukiSpeak(vars); },
+            text: function (vars) {
+              if (vars.yukiConditioned) return 'ほんとですか。じゃあ、次もちゃんとできていたら会えますか。';
+              if (vars.yukiAttached) return 'ほんとですか。じゃあ次に会ったら、外の色をもっと教えてください。';
+              return 'ほんとですか。……なら、今は信じることにします。';
+            }
           },
           {
             type: 'narration',
-            condition: function (vars) { return !canSpeak(vars); },
-            text: 'J-7はあなたの筆跡をじっと見てから、その紙を二つ折りにした。持って行けるものが少ない個体は、嘘でも捨てずにしまう。'
+            condition: function (vars) { return !canYukiSpeak(vars); },
+            text: function (vars) {
+              return vars.yukiLiterate || vars.yukiSemiLiterate
+                ? 'J-7はあなたの筆跡をじっと見てから、その紙を二つ折りにした。持って行けるものが少ない個体は、嘘でも捨てずにしまう。'
+                : 'J-7はあなたの顔をじっと見たあと、その言葉の意味は分からないままでも安心したふりを選んだように頷いた。';
+            }
           },
-          { type: 'goto', target: 'endingRouter' }
+          { type: 'goto', target: 'chapterOneReportRouter' }
         ]
       },
-      endingRouter: {
+      chapterOneReportRouter: {
         steps: [
-          { type: 'goto', target: 'endingDefiance', condition: 'vars.namedYuki && vars.reportedWall === false && vars.spokeUp === true && vars.promise === "memory"' },
-          { type: 'goto', target: 'endingLie', condition: 'vars.promise === "lie"' },
-          { type: 'goto', target: 'endingDetached', condition: '!vars.namedYuki && vars.reportedWall === true && vars.spokeUp === false' },
-          { type: 'goto', target: 'endingQuiet' }
+          { type: 'set_var', name: 'yukiRoute', value: function (vars) { return getYukiRoute(vars); } },
+          { type: 'goto', target: 'yukiReportResearch', condition: 'vars.yukiRoute === "research"' },
+          { type: 'goto', target: 'yukiReportLabor', condition: 'vars.yukiRoute === "labor"' },
+          { type: 'goto', target: 'yukiReportCare', condition: 'vars.yukiRoute === "care"' },
+          { type: 'goto', target: 'yukiReportPet', condition: 'vars.yukiRoute === "pet"' },
+          { type: 'goto', target: 'yukiReportMedical' }
         ]
       },
-      endingDefiance: {
-        steps: [
-          { type: 'bg', target: 'ending' },
-          { type: 'narration', text: function (vars) { return '数ヶ月後。研究棟への仮配属通知に、' + displayName(vars) + 'の識別番号を見つけた。正式名はない。あなたが与えた呼び名も、記録には残っていなかった。'; } },
-          { type: 'narration', text: 'それでも、壁の向こうから微かな笑い声が聞こえた瞬間、あなたは立ち止まった。覚えていると答えた責任だけが、まだ剥がれない。' },
-          { type: 'narration', text: 'END 01 / REMEMBER HER NAME' },
-          { type: 'end' }
-        ]
-      },
-      endingLie: {
+      yukiReportResearch: {
         steps: [
           { type: 'bg', target: 'ending' },
-          { type: 'narration', text: '配属先報告書は三ヶ月後に届いた。適応良好。質問傾向は抑制済み。文面は整っていて、読めば読むほど、人が減っていく形式だった。' },
-          { type: 'narration', text: 'また会えると言った日から、あなたは廊下で足音を聞くたびに顔を上げる癖がついた。一度も、その約束は回収されない。' },
-          { type: 'narration', text: 'END 02 / PROMISE YOU KNEW WAS FALSE' },
-          { type: 'end' }
+          { type: 'narration', text: function (vars) { return '数週間後、研究棟への仮配属通知に' + displayYukiName(vars) + 'の識別番号を見つけた。正式名はない。あなたが与えた呼び名も、記録には残っていなかった。'; } },
+          { type: 'narration', text: '通路の向こうで笑い声がした気がして、足を止めた。確かめには行けない。確かめないまま覚えている方が、この施設ではまだ人間らしいのかもしれなかった。' },
+          { type: 'goto', target: 'interludeOne' }
         ]
       },
-      endingDetached: {
+      yukiReportLabor: {
         steps: [
           { type: 'bg', target: 'ending' },
-          { type: 'narration', text: 'J-7の記録は、標準範囲に収束した。違反報告は適切、査定時の態度も問題なし。あなたの勤務成績は良好と評価された。' },
-          { type: 'narration', text: '帰路で城戸先輩が言う。慣れると楽ですよ。あなたは否定できなかった。楽になったのか、削れただけなのか、判別できないまま。' },
-          { type: 'narration', text: 'END 03 / NORMALIZED' },
-          { type: 'end' }
+          { type: 'narration', text: '夜間工区への配属報告書には、個体がしばしば空を見上げるため作業効率に影響が出る、とあった。空が見えるところですかと訊いた子への答えとしては、あまりに遅かった。' },
+          { type: 'narration', text: 'その報告を閉じたあとも、あなたはしばらく天井を見た。見えるはずのない空の色だけが、やけに具体的だった。' },
+          { type: 'goto', target: 'interludeOne' }
         ]
       },
-      endingQuiet: {
+      yukiReportCare: {
         steps: [
           { type: 'bg', target: 'ending' },
-          { type: 'narration', text: '報告書にも記憶にも、決定打は残らなかった。ただ一つ、最後の問いだけが処理できないデータとして残る。' },
-          { type: 'narration', text: 'また会えますか。答えられなかった言葉は、勤務終了後もしばらく、あなたの中でだけ再生を続けた。' },
-          { type: 'narration', text: 'END 04 / UNANSWERED' },
+          { type: 'narration', text: function (vars) { return '引き取り先家庭からの定型報告には、' + displayYukiName(vars) + 'は穏やかで、指示理解も早く、感情反応も愛玩的価値が高いと記されていた。褒め言葉の形をしていて、読むほど気分が悪くなった。'; } },
+          { type: 'narration', text: function (vars) { return vars.promise === 'lie' ? 'また会えると書いた日の筆圧だけが、やけに指に残っていた。' : '覚えていると答えた日の声だけが、勤務後もしばらく耳から離れなかった。'; } },
+          { type: 'goto', target: 'interludeOne' }
+        ]
+      },
+      yukiReportPet: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '適応良好。発話教育不要。従順性安定。短い報告書は整っていて、整っているぶんだけ、その中に本人がいなかった。' },
+          { type: 'narration', text: '城戸先輩は、こういう書類は早く読めるようになった方が楽だと言った。楽になりたくないと思ったが、読み返す回数だけは減っていた。' },
+          { type: 'goto', target: 'interludeOne' }
+        ]
+      },
+      yukiReportMedical: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '返送記録も再配属通知も届かなかった。ただ、しばらくして届いた健康観察報告だけが、ひどく無機質な文面でJ-7の状態を説明していた。' },
+          { type: 'narration', text: '書類の隅に残った数字より、最後にこちらを見ていた視線の方が、ずっと鮮明に残っていた。' },
+          { type: 'goto', target: 'interludeOne' }
+        ]
+      },
+      interludeOne: {
+        steps: [
+          { type: 'bg', target: 'corridor' },
+          { type: 'char_show', char: 'kido', position: 'right' },
+          { type: 'narration', text: '一ヶ月後。J-7がいた居室には別の個体番号が表示されていた。何もなかったみたいに、次の勤務表が差し込まれている。' },
+          { type: 'dialogue', char: 'kido', text: '消息が来ないのは普通だよ。来る方が面倒だから。……慣れてくる。慣れたくないって思ってても、慣れる。' },
+          { type: 'narration', text: 'その日の搬入口で、頭を丸く整えられた返還個体がひとり、輸送布の隙間から天井の照明を見上げていた。光を見る角度が、少しだけ見覚えに似ていた。似ていただけかもしれない。' },
+          { type: 'char_show', char: 'walter', position: 'left' },
+          { type: 'dialogue', char: 'walter', text: '次の配属個体はR-6。標準ロットではありません。返還歴のある記録保持個体です。発話は限定的ですが、記号理解と描画再現性が高い。丁寧に扱えば、良いデータが取れるでしょう。' },
+          { type: 'dialogue', char: 'player', text: '記録保持個体……。' },
+          { type: 'dialogue', char: 'kido', text: '覚えてる子は、覚えさせられる側もきついよ。まあ、会えばわかる。' },
+          { type: 'goto', target: 'chapterTwoIntro' }
+        ]
+      },
+      chapterTwoIntro: {
+        steps: [
+          { type: 'bg', target: 'briefing' },
+          { type: 'clear_chars' },
+          { type: 'char_show', char: 'walter', position: 'left' },
+          { type: 'char_show', char: 'kido', position: 'right' },
+          { type: 'dialogue', char: 'walter', text: 'R-6は発話より先に筆記機能が残存した稀少例です。自発的記録癖があります。情報保持の形が特殊なため、観察価値は高い。' },
+          { type: 'dialogue', char: 'kido', text: '要するに、見たものを残す子ってこと。消しても、また書く。うまくやれば従順に見えるけど、中身まで従順とは限らない。' },
+          { type: 'dialogue', char: 'player', text: '消されたくないものがあるんでしょうか。' },
+          { type: 'dialogue', char: 'kido', text: 'そういう聞き方をすると長持ちしない。けど、そういう聞き方をしなくなったら、たぶんもっとまずい。' },
+          { type: 'choice', options: [
+            { text: '記録を優先すると決める', goto: 'cultivationRen', setVar: { name: 'renStance', value: 'record' } },
+            { text: 'なるべく本人を見ようとする', goto: 'cultivationRen', setVar: { name: 'renStance', value: 'person' } }
+          ] }
+        ]
+      },
+      cultivationRen: {
+        steps: [
+          { type: 'clear_chars' },
+          { type: 'cultivation', key: 'renSecondChapter', goto: 'renFarewell' }
+        ]
+      },
+      renFarewell: {
+        steps: [
+          { type: 'bg', target: 'departure' },
+          { type: 'char_show', char: 'ren', position: 'center' },
+          {
+            type: 'narration',
+            text: function (vars) {
+              if (canRenSpeak(vars)) {
+                return displayRenName(vars) + 'は束ねた紙を一枚ずつ机へ並べていった。居室、廊下、あなたの横顔、監視窓の反射。最後の一枚だけ、裏返したまま差し出してくる。';
+              }
+              return displayRenName(vars) + 'は束ねた紙を一枚ずつ机へ並べていった。居室、廊下、あなたの横顔、監視窓の反射。最後の一枚だけ、裏返したまま差し出してくる。声の代わりに、渡す順番へ意味を詰めているようだった。';
+            }
+          },
+          {
+            type: 'dialogue',
+            char: 'ren',
+            condition: function (vars) { return canRenSpeak(vars); },
+            text: '……向こうに着いてから、見てください。'
+          },
+          {
+            type: 'narration',
+            condition: function (vars) { return !canRenSpeak(vars); },
+            text: '裏面には、整った字で「むこうに ついてから みて」と書かれていた。'
+          },
+          { type: 'choice', options: [
+            { text: '約束どおり後で開くと伝える', goto: 'renGiftPromise', setVar: { name: 'renGiftResponse', value: 'promise' } },
+            { text: '今ここで開こうとする', goto: 'renGiftEarly', setVar: { name: 'renGiftResponse', value: 'early' } },
+            { text: '受け取るだけで黙る', goto: 'renGiftSilent', setVar: { name: 'renGiftResponse', value: 'silent' } }
+          ] }
+        ]
+      },
+      renGiftPromise: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: '分かった。あとで見る。' },
+          {
+            type: 'dialogue',
+            char: 'ren',
+            condition: function (vars) { return canRenSpeak(vars); },
+            text: function (vars) {
+              return vars.renAttached ? '……その方が、たぶんちゃんと残ります。' : '……はい。';
+            }
+          },
+          {
+            type: 'narration',
+            condition: function (vars) { return !canRenSpeak(vars); },
+            text: 'R-6は小さく頷き、紙束の一番上だけを揃え直した。ほっとしたようにも、少しだけ悲しそうにも見えた。'
+          },
+          { type: 'goto', target: 'chapterTwoReportRouter' }
+        ]
+      },
+      renGiftEarly: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: '今、見てもいいか。' },
+          {
+            type: 'dialogue',
+            char: 'ren',
+            condition: function (vars) { return canRenSpeak(vars); },
+            text: '……まだ、だめです。'
+          },
+          {
+            type: 'narration',
+            condition: function (vars) { return !canRenSpeak(vars); },
+            text: 'R-6は珍しく強い手つきで紙の端を押さえ、それから「まだ」とだけ書き足した。'
+          },
+          { type: 'narration', text: 'ここで開くと、たぶん意味が違ってしまうのだろう。あなたは紙を受け取って、結局そのまましまった。' },
+          { type: 'goto', target: 'chapterTwoReportRouter' }
+        ]
+      },
+      renGiftSilent: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: '……。' },
+          {
+            type: 'dialogue',
+            char: 'ren',
+            condition: function (vars) { return canRenSpeak(vars); },
+            text: '返事、なくても大丈夫です。'
+          },
+          {
+            type: 'narration',
+            condition: function (vars) { return !canRenSpeak(vars); },
+            text: 'R-6はそれ以上何も求めず、ただ紙束の角だけを丁寧に揃えた。返事がないことにも、もう慣れている手つきだった。'
+          },
+          { type: 'goto', target: 'chapterTwoReportRouter' }
+        ]
+      },
+      chapterTwoReportRouter: {
+        steps: [
+          { type: 'set_var', name: 'renRoute', value: function (vars) { return getRenRoute(vars); } },
+          { type: 'goto', target: 'renReportResearch', condition: 'vars.renRoute === "research"' },
+          { type: 'goto', target: 'renReportEducation', condition: 'vars.renRoute === "education"' },
+          { type: 'goto', target: 'renReportCare', condition: 'vars.renRoute === "care"' },
+          { type: 'goto', target: 'renReportMedical' }
+        ]
+      },
+      renReportResearch: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '研究棟の白板に、同じ単語が何度も書かれていた。研究員が消す。また書かれる。なぜ。たった二文字が、消される速度だけで施設の仕組みを説明していた。' },
+          { type: 'narration', text: '数日後、差出人空欄の施設内便が届く。折り畳まれた紙を開くと、廊下の窓越しにこちらを見ている自分のシルエットが描かれていた。届け方を見つけたのだと、見るより先に分かった。' },
+          { type: 'goto', target: 'interludeTwo' }
+        ]
+      },
+      renReportEducation: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '教育区画の報告では、R-6は図形や配置認識の教材補助として優秀だと記されていた。ただ、子供に「どうして描くの」と聞かれたときだけ、「わかりません」と答えたらしい。' },
+          { type: 'narration', text: '覚えるために描いていたはずなのに、覚える理由だけが先に剥がされていく。その報告を読みながら、消去は記憶より意味から始まるのかもしれないと思った。' },
+          { type: 'goto', target: 'interludeTwo' }
+        ]
+      },
+      renReportCare: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '家庭配属後の報告では、壁に描かれた家族の肖像が高く評価されていた。だが同じ壁の下層には、家の間取りに重なるように施設の搬送路が描かれていた。気味が悪い、と申し送りにある。' },
+          { type: 'narration', text: '形を知りたかっただけだと書いた子が、最後まで形を重ね続けている。捨てられなかったのは、執着ではなく現在地だったのかもしれない。' },
+          { type: 'goto', target: 'interludeTwo' }
+        ]
+      },
+      renReportMedical: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '転出翌日の清掃記録には、壁面落書き除去完了とだけあった。数字を消し、平面図を消し、メモを回収し、それで処理は終わるはずだった。' },
+          { type: 'narration', text: 'だが高い位置に、一箇所だけ消し残しがあった。小さく、「また会えますか」。声にならなかった問いの方が、最後まで長持ちした。' },
+          { type: 'goto', target: 'interludeTwo' }
+        ]
+      },
+      interludeTwo: {
+        steps: [
+          { type: 'bg', target: 'audit' },
+          { type: 'narration', text: '半年が過ぎた。机の上には二通の定型報告が並んでいた。ひとつはJ-7の稼働報告。ひとつはR-6の再査定記録。どちらもよく似た言い回しで、本人の代わりに用途だけを説明している。' },
+          { type: 'narration', text: '報告を閉じた直後、回収区画のガラス越しに、誰かが曇りへ指で短い線を引くのが見えた。空の欠片にも、簡略化された地図にも見える線だった。近づいたときには、もう何も残っていなかった。' },
+          { type: 'char_show', char: 'kido', position: 'right' },
+          { type: 'dialogue', char: 'kido', text: '次はアキだよ。施設生まれの補助種。世話をする側に寄せて作られた子。ああいうのを見ると、さすがに少し気分が悪くなる。……少しだけ、だけど。' },
+          { type: 'dialogue', char: 'player', text: '少しだけ、ですか。' },
+          { type: 'dialogue', char: 'kido', text: 'そのうち分かる。少しだけって言えるうちは、まだ引き返せる気がするから。' },
+          { type: 'narration', text: '続ける理由はもう生活だけではなかった。知ってしまったものを、知らなかったことにできないまま、次の扉が開く。' },
+          { type: 'narration', text: 'FIRST PART END / CAN WE MEET AGAIN' },
           { type: 'end' }
         ]
       }

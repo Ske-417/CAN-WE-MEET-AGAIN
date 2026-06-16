@@ -25,6 +25,12 @@
       }, '#9dd8f6', '#4d7ba3', {
         // default: './assets/characters/yuki/default.png'
       }),
+      ren: makeCharacter(function (vars) {
+        if (!vars.namedRen) return 'R-6';
+        return vars.renName || 'レン';
+      }, '#d9d0ff', '#6a5f97', {
+        // default: './assets/characters/ren/default.png'
+      }),
       system: makeCharacter('[ SYSTEM ]', '#6cb6d4', '#4a6f89')
     };
   };

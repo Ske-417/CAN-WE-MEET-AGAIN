@@ -1,8 +1,17 @@
 (function initGameBoot() {
   const siteLoadingStartedAt = Date.now();
   const siteLoading = document.getElementById('site-loading');
+  const siteLoadingCopy = document.querySelector('.site-loading-copy');
   const SITE_LOADING_MIN_MS = 2500;
   const LOADING_FADE_MS = 760;
+  const LOADING_COPY_VARIANTS = [
+    '出勤通知は出荷通知だ。',
+    '名前は痛みを育てる。',
+    '優しさは、規定違反。',
+    '言葉は、本人のためとは限らない。',
+    'ここで育つのは判定だ。',
+    '静かな個体ほど扱いやすい。',
+  ];
 
   if (!siteLoading) {
     return;
@@ -14,6 +23,11 @@
   if (!Engine || !buildGameScript || !config) {
     console.error('Game boot dependencies are missing.');
     return;
+  }
+
+  if (siteLoadingCopy) {
+    const copyIndex = Math.floor(Math.random() * LOADING_COPY_VARIANTS.length);
+    siteLoadingCopy.textContent = LOADING_COPY_VARIANTS[copyIndex];
   }
 
   function hideSiteLoading() {

@@ -1,6 +1,6 @@
 (function (global) {
   global.CWMA_CONFIG = {
-    title: 'CAN WE MEET AGAIN',
+    title: 'CAN WE MEET AGAIN ?',
     subtitle: 'In the Incubator',
     startScene: 'opening',
     engine: {
