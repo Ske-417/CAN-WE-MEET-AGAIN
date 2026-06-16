@@ -476,7 +476,10 @@
       this.els.cultSystem.textContent = '育成管理システム / FIRST LOT';
       this.els.cultProgress.style.width = `${progress}%`;
       this.els.cultWeek.textContent = `第${cult.week}週 / 全${maxWeeks}週`;
-      this.els.cultCode.textContent = `個体番号: ${cult.data.subjectCode} / 担当: ${cult.data.managerCode || 'S-91'}`;
+      const managerLabel = cult.data.managerCode
+        ? this._resolveCultivationValue(cult.data.managerCode, cult)
+        : (this.state.vars.playerName || 'S-91');
+      this.els.cultCode.textContent = `個体番号: ${cult.data.subjectCode} / 担当: ${managerLabel}`;
       this.els.cultName.textContent = `呼称: ${labelName}`;
       this.els.cultSpeech.textContent = cult.data.speechStatus
         ? this._resolveCultivationValue(cult.data.speechStatus, cult)
@@ -1146,8 +1149,13 @@
     _showTitleScreen(callback) {
       const title   = this.script.title   || 'VISUAL NOVEL';
       const subtitle = this.script.subtitle || '';
+      const titleImage = this.script.titleImage || '';
       const overlay  = document.createElement('div');
       overlay.className = 'vn-title-screen';
+      if (titleImage) {
+        overlay.classList.add('has-art');
+        overlay.style.background = `linear-gradient(180deg, rgba(3, 8, 16, 0.56), rgba(2, 6, 12, 0.78)), url(${titleImage}) center/cover no-repeat`;
+      }
       overlay.innerHTML = `
         <div class="vn-title-inner">
           <div class="vn-title-eyebrow">VISUAL NOVEL</div>
@@ -1917,7 +1925,19 @@
       display:flex; align-items:center; justify-content:center;
       transition:opacity .62s;
     }
-    .vn-title-inner { text-align:center; }
+    .vn-title-inner {
+      text-align:center;
+      padding:28px 34px;
+      background:rgba(4, 10, 20, .18);
+      border:1px solid rgba(119, 155, 183, .16);
+      backdrop-filter:blur(6px);
+      box-shadow:0 14px 48px rgba(0, 0, 0, .18);
+    }
+    .vn-title-screen.has-art .vn-title-inner {
+      background:rgba(4, 10, 20, .34);
+      border-color:rgba(139, 174, 201, .2);
+      box-shadow:0 18px 64px rgba(0, 0, 0, .26);
+    }
     .vn-title-eyebrow {
       color:rgba(74,143,181,.48); font-size:10px;
       letter-spacing:.4em; margin-bottom:16px;

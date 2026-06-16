@@ -9,3 +9,5 @@
 - `assets/characters/kido/default.png`
 
 `game/data/characters.js` の `sprites` にパスを追加すると、`VN-Engine.js` はシルエットではなく画像を表示します。
+
+全体の画像管理は [assets/IMAGE_TODO.md](../IMAGE_TODO.md) を参照。

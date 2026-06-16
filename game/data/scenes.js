@@ -166,6 +166,7 @@
       promiseMemory: {
         steps: [
           { type: 'dialogue', char: 'player', text: '覚えている。たぶん、ずっと。' },
+          { type: 'narration', text: '言った瞬間、自分で自分の逃げ道をひとつ潰した気がした。忘れないと約束することは、優しさというより、あとで効いてくる種類の責任だった。' },
           {
             type: 'dialogue',
             char: 'yuki',
@@ -191,6 +192,7 @@
       promiseSilence: {
         steps: [
           { type: 'dialogue', char: 'player', text: '……。' },
+          { type: 'narration', text: '黙っているあいだにも、時間だけはきちんと進んでいた。返答しないことは保留ではない。ただ、相手ひとりにだけ答えを負わせるやり方だ。' },
           {
             type: 'dialogue',
             char: 'yuki',
@@ -216,6 +218,7 @@
       promiseLie: {
         steps: [
           { type: 'dialogue', char: 'player', text: 'また会える。だから、今は心配しなくていい。' },
+          { type: 'narration', text: '言い終える前から、それがこの施設でいちばん安い慰め方だと分かっていた。安いのに、受け取る側には高く残る。そういう言葉だった。' },
           {
             type: 'dialogue',
             char: 'yuki',
@@ -252,6 +255,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: function (vars) { return '数週間後、研究棟への仮配属通知に' + displayYukiName(vars) + 'の識別番号を見つけた。正式名はない。あなたが与えた呼び名も、記録には残っていなかった。'; } },
+          { type: 'narration', text: '書類の上では、最初から番号しか存在しなかったことになっている。だが実際には、確かに一度だけ、誰かの声で呼ばれていた。消されるのは事実そのものではなく、事実に触れた人間の側だ。' },
           { type: 'narration', text: '通路の向こうで笑い声がした気がして、足を止めた。確かめには行けない。確かめないまま覚えている方が、この施設ではまだ人間らしいのかもしれなかった。' },
           { type: 'goto', target: 'interludeOne' }
         ]
@@ -260,6 +264,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '夜間工区への配属報告書には、個体がしばしば空を見上げるため作業効率に影響が出る、とあった。空が見えるところですかと訊いた子への答えとしては、あまりに遅かった。' },
+          { type: 'narration', text: 'その一文だけ、妙に人間の癖が混じっていた。効率低下と書きながら、本当は誰かが、何度も空を見てしまう様子を見ていたのだ。見て、それを止められず、最後に報告へ整えた。' },
           { type: 'narration', text: 'その報告を閉じたあとも、あなたはしばらく天井を見た。見えるはずのない空の色だけが、やけに具体的だった。' },
           { type: 'goto', target: 'interludeOne' }
         ]
@@ -268,6 +273,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: function (vars) { return '引き取り先家庭からの定型報告には、' + displayYukiName(vars) + 'は穏やかで、指示理解も早く、感情反応も愛玩的価値が高いと記されていた。褒め言葉の形をしていて、読むほど気分が悪くなった。'; } },
+          { type: 'narration', text: '大事にされている、という言い回しが、必ずしも救済を意味しない世界だと知ってしまったあとでは、穏やかという単語ひとつにも棘があった。懐いたこと自体が査定項目になるなら、優しさはもう感情ではなく加工工程に近い。 ' },
           { type: 'narration', text: function (vars) { return vars.promise === 'lie' ? 'また会えると書いた日の筆圧だけが、やけに指に残っていた。' : '覚えていると答えた日の声だけが、勤務後もしばらく耳から離れなかった。'; } },
           { type: 'goto', target: 'interludeOne' }
         ]
@@ -276,6 +282,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '適応良好。発話教育不要。従順性安定。短い報告書は整っていて、整っているぶんだけ、その中に本人がいなかった。' },
+          { type: 'narration', text: '何も喋れないままの方が扱いやすいと、最初に聞かされた。今さらその通りだったと証明されても、正しさではなく空虚さしか残らない。うまく仕上がった、という評価は、ひとつの失敗を別名で呼んでいるだけかもしれなかった。' },
           { type: 'narration', text: '城戸先輩は、こういう書類は早く読めるようになった方が楽だと言った。楽になりたくないと思ったが、読み返す回数だけは減っていた。' },
           { type: 'goto', target: 'interludeOne' }
         ]
@@ -284,6 +291,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '返送記録も再配属通知も届かなかった。ただ、しばらくして届いた健康観察報告だけが、ひどく無機質な文面でJ-7の状態を説明していた。' },
+          { type: 'narration', text: '消息がないことは、この施設では異常ではない。異常ではないからこそ、想像だけが勝手に増える。声を持ったままだったか、最後まで持てなかったか、どちらの方がましだったのかも分からない。' },
           { type: 'narration', text: '書類の隅に残った数字より、最後にこちらを見ていた視線の方が、ずっと鮮明に残っていた。' },
           { type: 'goto', target: 'interludeOne' }
         ]
@@ -293,6 +301,7 @@
           { type: 'bg', target: 'corridor' },
           { type: 'char_show', char: 'kido', position: 'right' },
           { type: 'narration', text: '一ヶ月後。J-7がいた居室には別の個体番号が表示されていた。何もなかったみたいに、次の勤務表が差し込まれている。' },
+          { type: 'narration', text: '入れ替わった番号札だけが新しく、扉の開閉音や照明の白さは前と同じだった。場所が同じまま中身だけ差し替わることに、施設は驚くほど慣れている。慣れていないのは、まだこちらだけだった。' },
           { type: 'dialogue', char: 'kido', text: '消息が来ないのは普通だよ。来る方が面倒だから。……慣れてくる。慣れたくないって思ってても、慣れる。' },
           { type: 'narration', text: 'その日の搬入口で、頭を丸く整えられた返還個体がひとり、輸送布の隙間から天井の照明を見上げていた。光を見る角度が、少しだけ見覚えに似ていた。似ていただけかもしれない。' },
           { type: 'char_show', char: 'walter', position: 'left' },
@@ -348,6 +357,7 @@
             condition: function (vars) { return !canRenSpeak(vars); },
             text: '裏面には、整った字で「むこうに ついてから みて」と書かれていた。'
           },
+          { type: 'narration', text: 'ここで開かせないのは、秘密を作りたいからではなく、順番を守りたいからなのだと分かった。R-6にとって記録は、いつ書かれたかだけでなく、いつ読まれるかまで含めて完成するものらしかった。' },
           { type: 'choice', options: [
             { text: '約束どおり後で開くと伝える', goto: 'renGiftPromise', setVar: { name: 'renGiftResponse', value: 'promise' } },
             { text: '今ここで開こうとする', goto: 'renGiftEarly', setVar: { name: 'renGiftResponse', value: 'early' } },
@@ -422,6 +432,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '研究棟の白板に、同じ単語が何度も書かれていた。研究員が消す。また書かれる。なぜ。たった二文字が、消される速度だけで施設の仕組みを説明していた。' },
+          { type: 'narration', text: '問いの内容より、問いを消す手際の方が洗練されていた。長く続いてきたのは研究ではなく、その消し方の方なのだろうと思った。' },
           { type: 'narration', text: '数日後、差出人空欄の施設内便が届く。折り畳まれた紙を開くと、廊下の窓越しにこちらを見ている自分のシルエットが描かれていた。届け方を見つけたのだと、見るより先に分かった。' },
           { type: 'goto', target: 'interludeTwo' }
         ]
@@ -430,6 +441,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '教育区画の報告では、R-6は図形や配置認識の教材補助として優秀だと記されていた。ただ、子供に「どうして描くの」と聞かれたときだけ、「わかりません」と答えたらしい。' },
+          { type: 'narration', text: '理解だけが残って理由が剥がれるなら、それは矯正というより静かな破壊に近かった。役に立つ形へ整えられていく過程で、本人にしか持てなかった中心だけが抜かれていく。' },
           { type: 'narration', text: '覚えるために描いていたはずなのに、覚える理由だけが先に剥がされていく。その報告を読みながら、消去は記憶より意味から始まるのかもしれないと思った。' },
           { type: 'goto', target: 'interludeTwo' }
         ]
@@ -438,6 +450,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '家庭配属後の報告では、壁に描かれた家族の肖像が高く評価されていた。だが同じ壁の下層には、家の間取りに重なるように施設の搬送路が描かれていた。気味が悪い、と申し送りにある。' },
+          { type: 'narration', text: '居場所を知ろうとする癖は、環境が変わっても消えなかった。安心したかったのか、逃げ道を測っていたのか、あるいはその両方だったのかもしれない。' },
           { type: 'narration', text: '形を知りたかっただけだと書いた子が、最後まで形を重ね続けている。捨てられなかったのは、執着ではなく現在地だったのかもしれない。' },
           { type: 'goto', target: 'interludeTwo' }
         ]
@@ -446,6 +459,7 @@
         steps: [
           { type: 'bg', target: 'ending' },
           { type: 'narration', text: '転出翌日の清掃記録には、壁面落書き除去完了とだけあった。数字を消し、平面図を消し、メモを回収し、それで処理は終わるはずだった。' },
+          { type: 'narration', text: '終わるはずだった、という書き方しかできない時点で、たぶん何ひとつ終わっていない。消し忘れではなく、最後まで消し切れなかったのだと考える方が自然だった。' },
           { type: 'narration', text: 'だが高い位置に、一箇所だけ消し残しがあった。小さく、「また会えますか」。声にならなかった問いの方が、最後まで長持ちした。' },
           { type: 'goto', target: 'interludeTwo' }
         ]
@@ -454,6 +468,7 @@
         steps: [
           { type: 'bg', target: 'audit' },
           { type: 'narration', text: '半年が過ぎた。机の上には二通の定型報告が並んでいた。ひとつはJ-7の稼働報告。ひとつはR-6の再査定記録。どちらもよく似た言い回しで、本人の代わりに用途だけを説明している。' },
+          { type: 'narration', text: '書類は増えるのに、覚えている顔の方は減らない。処理は進んでいるはずなのに、内部では何も片付かないまま沈殿していく。ここで働くというのは、たぶんそういう種類の蓄積だ。' },
           { type: 'narration', text: '報告を閉じた直後、回収区画のガラス越しに、誰かが曇りへ指で短い線を引くのが見えた。空の欠片にも、簡略化された地図にも見える線だった。近づいたときには、もう何も残っていなかった。' },
           { type: 'char_show', char: 'kido', position: 'right' },
           { type: 'dialogue', char: 'kido', text: '次はアキだよ。施設生まれの補助種。世話をする側に寄せて作られた子。ああいうのを見ると、さすがに少し気分が悪くなる。……少しだけ、だけど。' },

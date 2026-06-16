@@ -82,7 +82,9 @@
       yukiFirstChapter: {
         subjectId: 'yuki',
         subjectCode: 'J-7',
-        managerCode: 'S-91',
+        managerCode: function (vars) {
+          return vars.playerName || 'S-91';
+        },
         varPrefix: 'yuki',
         namedVar: 'namedYuki',
         nameVar: 'yukiName',
@@ -541,7 +543,9 @@
       renSecondChapter: {
         subjectId: 'ren',
         subjectCode: 'R-6',
-        managerCode: 'S-91',
+        managerCode: function (vars) {
+          return vars.playerName || 'S-91';
+        },
         varPrefix: 'ren',
         namedVar: 'namedRen',
         nameVar: 'renName',

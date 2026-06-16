@@ -2,6 +2,7 @@
   global.CWMA_CONFIG = {
     title: 'CAN WE MEET AGAIN ?',
     subtitle: 'In the Incubator',
+    titleImage: './assets/title-main.png',
     startScene: 'opening',
     engine: {
       typeSpeed: 28,
