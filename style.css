@@ -1,0 +1,213 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(53, 87, 118, 0.22), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(170, 147, 95, 0.14), transparent 28%),
+    linear-gradient(135deg, #081018 0%, #030507 48%, #090b12 100%);
+  color: #d8e3eb;
+  font-family: "Shippori Mincho B1", serif;
+  line-break: strict;
+  word-break: auto-phrase;
+}
+
+body {
+  min-height: 100vh;
+}
+
+:root {
+  --font-story: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-ui: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+.page-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.ambient {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.ambient-left {
+  top: 5%;
+  left: -80px;
+  width: 280px;
+  height: 280px;
+  background: rgba(61, 106, 150, 0.24);
+}
+
+.ambient-right {
+  right: -60px;
+  bottom: 8%;
+  width: 240px;
+  height: 240px;
+  background: rgba(173, 144, 74, 0.18);
+}
+
+.game-layout {
+  position: relative;
+  z-index: 1;
+}
+
+.boot-tag {
+  margin: 0 0 8px;
+  letter-spacing: 0.22em;
+  font-size: 11px;
+  color: rgba(149, 181, 204, 0.68);
+  font-family: var(--font-ui);
+  text-wrap: balance;
+}
+
+.game-layout {
+  display: block;
+}
+
+.game-frame {
+  position: relative;
+  min-height: calc(100vh - 32px);
+  padding: 10px;
+  border: 1px solid rgba(107, 137, 160, 0.18);
+  background: rgba(5, 8, 12, 0.7);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(12px);
+}
+
+#game {
+  width: 100%;
+  height: calc(100vh - 54px);
+  min-height: 560px;
+}
+
+.boot-overlay {
+  position: absolute;
+  inset: 14px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(6, 12, 20, 0.88), rgba(2, 5, 9, 0.96)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 4px);
+  z-index: 10;
+}
+
+.boot-card {
+  border: 1px solid rgba(118, 149, 170, 0.18);
+  background: rgba(11, 17, 24, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.boot-card {
+  width: min(760px, calc(100% - 32px));
+  padding: 28px;
+}
+
+.boot-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-family: var(--font-story);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #f0f5f8;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.boot-copy,
+.boot-note {
+  font-size: 13px;
+  line-height: 1.8;
+  color: rgba(216, 227, 235, 0.76);
+  font-family: var(--font-ui);
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+.boot-copy {
+  max-width: 42em;
+}
+
+.boot-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.boot-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(120, 154, 177, 0.2);
+  background: rgba(4, 8, 13, 0.85);
+  color: #edf4fa;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  outline: none;
+}
+
+.boot-form input:focus {
+  border-color: rgba(172, 196, 214, 0.46);
+}
+
+.boot-form button {
+  padding: 12px 20px;
+  border: 1px solid rgba(180, 159, 102, 0.34);
+  background: linear-gradient(135deg, rgba(79, 96, 111, 0.18), rgba(141, 114, 61, 0.22));
+  color: #f5f0e4;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.boot-note {
+  margin: 16px 0 0;
+}
+
+@media (max-width: 960px) {
+  .page-shell {
+    padding: 12px;
+  }
+
+  .game-frame {
+    min-height: calc(100vh - 24px);
+    padding: 10px;
+  }
+
+  #game {
+    height: calc(100vh - 44px);
+    min-height: 520px;
+  }
+
+  .boot-overlay {
+    inset: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .boot-card {
+    padding: 22px 18px;
+  }
+
+  .boot-form {
+    flex-direction: column;
+  }
+
+  .boot-copy {
+    max-width: none;
+  }
+}

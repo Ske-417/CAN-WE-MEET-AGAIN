@@ -1,0 +1,24 @@
+
+</main>
+      <section class="game-frame">
+        <div id="game"></div>
+        <div id="boot-overlay" class="boot-overlay">
+          <div class="boot-card">
+            <p class="boot-tag">INITIALIZE OPERATOR PROFILE</p>
+            <h2>担当員識別名を入力してください</h2>
+            <p class="boot-copy">入力した名前が作中での呼び名になります。未入力なら「S-91」で開始します。</p>
+            <form id="boot-form" class="boot-form">
+              <input id="player-name" name="playerName" type="text" maxlength="12" autocomplete="off" placeholder="S-91">
+              <button type="submit">勤務開始</button>
+            </form>
+            <p class="boot-note">操作: クリック / `Enter` で進行、`A` AUTO、`S` SKIP、`L` LOG</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./VN-Engine.js"></script>
+  <script type="module" src="./game/main.js"></script>
+</body>
+</html>
