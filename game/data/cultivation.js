@@ -77,6 +77,10 @@
     return !!vars.renCanSpeak;
   }
 
+  function displayAkiName(vars) {
+    return vars.namedAki ? (vars.akiName || 'アキ') : 'A-4';
+  }
+
   global.CWMA_buildCultivation = function buildCultivation() {
     return {
       yukiFirstChapter: {
@@ -356,6 +360,47 @@
             },
             { type: 'log', text: '[第2週] 壁面痕跡を確認。担当判断を記録。', highlight: true }
           ],
+          3: [
+            { type: 'narration', text: '第3週。消灯前、J-7は何度も壁際を振り返っていた。ついてこいと言いたいらしいが、まだ言葉はない。細い指先だけが、壁の一箇所を控えめに叩いている。' },
+            {
+              type: 'narration',
+              text: function (vars, cult) {
+                if (isAttached(vars, cult)) {
+                  return 'そこには本当に、ごく細い光の筋が落ちていた。換気口の継ぎ目から漏れるだけの白い線なのに、J-7は宝物を見つけた子供みたいな顔でそれを指差した。';
+                }
+                return 'そこにはごく細い光の筋が落ちていた。換気口の継ぎ目から漏れるだけの白い線だ。それでもJ-7にとっては、自分だけが知っている外側の証拠らしかった。';
+              }
+            },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '少しだけ一緒に眺める',
+                  apply: function (vars, cult) {
+                    vars.sharedLight = true;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '規定上よくないと離れさせる',
+                  apply: function (vars, cult) {
+                    vars.sharedLight = false;
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                    cult.stats.trust = clamp(cult.stats.trust - 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.sharedLight
+                  ? '数十秒しか見ていないのに、そのあとJ-7は妙に機嫌がよかった。何か特別なことをしたわけでもない。ただ、同じものを同じ向きで見たという事実だけが、思ったより深く残る。'
+                  : 'J-7は素直に離れたが、そのあと何度か振り返った。悪いことを叱られた顔ではなく、きれいなものを急いでしまわせた相手を見る顔だった。';
+              }
+            },
+            { type: 'log', text: '[第3週] 壁際の漏光点を確認。反応を記録。', highlight: true }
+          ],
           4: [
             { type: 'narration', text: '夜勤明けの廊下で、隣区画の搬送台車だけが妙に長く音を引いていた。翌朝、その居室の名札は外されていた。' },
             {
@@ -422,6 +467,57 @@
               }
             },
             { type: 'log', text: '[第4週] 隣室消失に対する情動反応を記録。', highlight: true }
+          ],
+          5: [
+            { type: 'narration', text: '第5週。点検用の紙片が一枚なくなっていた。探すより先に、J-7のベッド脇で不格好に折られた小さな形を見つける。鳥に見えなくもない。' },
+            {
+              type: 'dialogue',
+              char: 'yuki',
+              condition: function (vars) { return isSpeaking(vars); },
+              text: function (vars, cult) {
+                if (isFrayed(vars, cult)) return '飛ばないけど、飛んでる形には、できます。……それだけでも、少しましだから。';
+                if (isAttached(vars, cult)) return '飛ばないけど、飛んでる形にはできます。担当さんに、あげたかったんです。';
+                return '飛ばないけど、飛んでる形です。';
+              }
+            },
+            {
+              type: 'narration',
+              condition: function (vars) { return !isSpeaking(vars); },
+              text: function (vars, cult) {
+                return canWriteSingleWord(vars, cult)
+                  ? '紙の裏には、震えた字で「とり」と書かれていた。発音できなくても、意味の方を先に覚えてしまったらしい。'
+                  : 'J-7はその紙の形を両手で持ち上げ、少しだけ揺らした。飛ぶ真似なのだと分かるまでに、一拍かかった。';
+              }
+            },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '受け取って机にしまう',
+                  apply: function (vars, cult) {
+                    vars.keptBird = true;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '記録物だから戻すよう促す',
+                  apply: function (vars, cult) {
+                    vars.keptBird = false;
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                    cult.stats.stress = clamp(cult.stats.stress + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.keptBird
+                  ? '受け取った瞬間、J-7は笑った。大きな出来事でもないのに、その笑顔だけはひどく完成度が低く、だからこそ本物に見えた。次の週に何が起きるかを知っていれば知っているほど、その場面は後から効いてくる。'
+                  : '戻すように言うと、J-7は頷いて丁寧に紙を開いた。元の長方形へ戻っていく紙を見るあいだ、こちらの方が少しだけ息苦しかった。';
+              }
+            },
+            { type: 'log', text: '[第5週] 紙片加工物を確認。担当判断を記録。', highlight: true }
           ],
           6: [
             { type: 'narration', text: '第6週。外部査定の日。ヴァルター管理官は、いつもより柔らかい声で居室に入ってきた。その柔らかさが、器具の冷たさより嫌だった。' },
@@ -807,6 +903,53 @@
             },
             { type: 'log', text: '[第5週] 滞在日数の自己計測を確認。', highlight: true }
           ],
+          6: [
+            { type: 'narration', text: '第6週。あなたが入ると、R-6は珍しくすぐに紙を差し出した。描かれていたのは居室でも通路でもなく、湯気の立つ紙コップと、その横に置かれた手だった。あなたの休憩時間の風景だ。見せた覚えはない。' },
+            {
+              type: 'dialogue',
+              char: 'ren',
+              condition: function (vars) { return isRenSpeaking(vars); },
+              text: 'つかれてる、ときの手です。'
+            },
+            {
+              type: 'narration',
+              condition: function (vars) { return !isRenSpeaking(vars); },
+              text: function (vars, cult) {
+                return languageScore(vars, cult) >= 6
+                  ? '紙の隅に「つかれてる ときの て」と書かれていた。似顔絵より、そちらの方が少し怖かった。顔より先に疲れ方を覚えられている。'
+                  : 'R-6は自分の手を軽く握ってから、紙の上の手を指差した。労わる真似なのだと分かったとき、急に距離感がおかしくなる。';
+              }
+            },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: 'ありがとうと受け取る',
+                  apply: function (vars, cult) {
+                    vars.acceptedRenSketch = true;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '観察しすぎだと距離を取る',
+                  apply: function (vars, cult) {
+                    vars.acceptedRenSketch = false;
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                    cult.stats.trust = clamp(cult.stats.trust - 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.acceptedRenSketch
+                  ? 'R-6は表情をほとんど変えなかったが、次の紙を出すまでの間だけ鉛筆を置いていた。観察対象としてではなく、自分の差し出したものが相手に届いたと確認する沈黙だった。'
+                  : '距離を取ると、R-6は頷いて紙を裏返した。拒絶されたことを騒がず処理する静けさは、むしろこれまで何度もそうされてきた証拠に見えた。';
+              }
+            },
+            { type: 'log', text: '[第6週] 担当員状態の描画再現を確認。', highlight: true }
+          ],
           7: [
             { type: 'narration', text: '第7週。標準能力評価試験で、R-6は設問の意図を先回りするように全問正解した。終了後、机の上には採点結果より先に一枚のメモが残っていた。' },
             {
@@ -855,6 +998,377 @@
               }
             },
             { type: 'log', text: '[第8週] 最終査定前に所有反応を確認。', highlight: true }
+          ]
+        }
+      },
+      akiThirdChapter: {
+        subjectId: 'aki',
+        subjectCode: 'A-4',
+        managerCode: function (vars) {
+          return vars.playerName || 'S-91';
+        },
+        varPrefix: 'aki',
+        namedVar: 'namedAki',
+        nameVar: 'akiName',
+        speechVar: 'akiCanSpeak',
+        displayName: function (vars) {
+          return displayAkiName(vars);
+        },
+        speechStatus: function () {
+          return '発話: 安定 / 対人反応: 高';
+        },
+        weeks: 8,
+        actionsPerWeek: 1,
+        statMax: 12,
+        initialStats: {
+          language: 7,
+          trust: 4,
+          obedience: 6,
+          vitality: 6,
+          stress: 2
+        },
+        actions: [
+          {
+            id: 'idle',
+            label: '待機観察',
+            code: 'O-0',
+            description: '今週は介入を抑え、対人行動だけを記録する。',
+            effectText: '変化なし',
+            apply: function () {}
+          },
+          {
+            id: 'language',
+            label: '面談記録',
+            code: 'L-4',
+            description: '長めの対話を行い、自己認識と応答精度を確認する。',
+            effectText: '言語理解 +1 / 負荷 +1',
+            apply: function (stats) {
+              stats.language = clamp(stats.language + 1, 0, 12);
+              stats.stress = clamp(stats.stress + 1, 0, 12);
+            }
+          },
+          {
+            id: 'bond',
+            label: '共同ケア',
+            code: 'D-8',
+            description: '他個体の観察や簡易補助を任せ、対人志向を確認する。',
+            effectText: '信頼 +2 / 服従 -1 / 負荷 +1',
+            apply: function (stats) {
+              stats.trust = clamp(stats.trust + 2, 0, 12);
+              stats.obedience = clamp(stats.obedience - 1, 0, 12);
+              stats.stress = clamp(stats.stress + 1, 0, 12);
+            }
+          },
+          {
+            id: 'conditioning',
+            label: '隔離矯正',
+            code: 'C-9',
+            description: '他個体との接触を制限し、規則優先の応答へ矯正する。',
+            effectText: '服従 +2 / 信頼 -1 / 負荷 +2',
+            apply: function (stats) {
+              stats.obedience = clamp(stats.obedience + 2, 0, 12);
+              stats.trust = clamp(stats.trust - 1, 0, 12);
+              stats.stress = clamp(stats.stress + 2, 0, 12);
+            }
+          },
+          {
+            id: 'care',
+            label: '情動保全',
+            code: 'E-7',
+            description: '休息と会話を優先し、共感反応の過負荷を抑える。',
+            effectText: '信頼 +1 / 負荷 -1',
+            apply: function (stats) {
+              stats.trust = clamp(stats.trust + 1, 0, 12);
+              stats.stress = clamp(stats.stress - 1, 0, 12);
+            }
+          },
+          {
+            id: 'physical',
+            label: '補助作業訓練',
+            code: 'B-6',
+            description: '運搬や介助の模擬課題で実用適性を計測する。',
+            effectText: '体力 +1 / 服従 +1 / 負荷 +1',
+            apply: function (stats) {
+              stats.vitality = clamp(stats.vitality + 1, 0, 12);
+              stats.obedience = clamp(stats.obedience + 1, 0, 12);
+              stats.stress = clamp(stats.stress + 1, 0, 12);
+            }
+          }
+        ],
+        prediction: function (stats, vars) {
+          if (stats.trust >= 8 && stats.stress <= 4 && vars.reportedFood === false) {
+            return '愛護向け。家庭適応性が高いが、対人固着と越境行動に注意。';
+          }
+          if (stats.obedience >= 9 && stats.stress >= 6) {
+            return '愛玩向け。感情反応は高いが矯正可能と評価。';
+          }
+          if (stats.stress >= 8 || vars.akiKnewFate) {
+            return '医療向け。情動の過剰発現につき再資源化候補。';
+          }
+          return '分類競合中。複数部署による査定継続。';
+        },
+        weekEvents: {
+          1: [
+            { type: 'narration', text: '第3配属個体A-4は、あなたが入る前から壁を軽く叩いていた。一定の間隔で、短く三回。返事を待つみたいに耳を澄ませ、それからようやくこちらを見る。' },
+            { type: 'dialogue', char: 'aki', text: 'あの子、最近元気ないんです。隣の子。返事、昨日から遅くて。' },
+            { type: 'dialogue', char: 'player', text: '自分のことより、隣が気になるのか。' },
+            { type: 'dialogue', char: 'aki', text: 'そうみたいです。変ですよね。わたしも、そう思います。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '番号のまま記録する',
+                  apply: function (vars) {
+                    vars.namedAki = false;
+                    vars.akiName = '';
+                  }
+                },
+                {
+                  text: '「アキ」と記録する',
+                  apply: function (vars) {
+                    vars.namedAki = true;
+                    vars.akiName = 'アキ';
+                  }
+                },
+                {
+                  text: '別の名前を与える',
+                  gotoLabel: 'customAkiName'
+                }
+              ]
+            },
+            { type: 'goto_label', label: 'akiNameEnd' },
+            { type: 'label', id: 'customAkiName' },
+            {
+              type: 'input',
+              name: 'akiName',
+              label: '対象の呼び名を入力してください。',
+              placeholder: '呼び名を入力',
+              defaultValue: 'アキ',
+              maxLength: 8,
+              apply: function (vars) {
+                vars.namedAki = true;
+              }
+            },
+            { type: 'label', id: 'akiNameEnd' },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.namedAki
+                  ? '呼び名を伝えると、A-4は自分の胸を一度だけ押さえた。それが嬉しいしぐさなのか、責任を受け取る姿勢なのか、すぐには判別できなかった。'
+                  : '番号を読み上げると、A-4は素直に頷いた。拒否はない。ただ、その反応が従順だからではなく、相手に合わせるよう設計されているからだと考えると妙に冷えた。';
+              }
+            },
+            { type: 'log', text: '[初回接触] 他個体への注意集中を確認。呼称設定を記録。', highlight: true }
+          ],
+          2: [
+            { type: 'dialogue', char: 'aki', text: '去年、ここにいた子のこと、覚えてます。いなくなった日の音も。……でも、聞かない方がいいことってありますよね。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '聞かない方が楽だと答える',
+                  apply: function (vars, cult) {
+                    vars.akiTruthStyle = 'avoid';
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '覚えていていいと答える',
+                  apply: function (vars, cult) {
+                    vars.akiTruthStyle = 'keep';
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.akiTruthStyle === 'keep'
+                  ? 'A-4は安心したようにも、諦めたようにも見える笑い方をした。覚えていていいと言われたことより、覚えている自分を否定されなかったことの方が大きかったのかもしれない。'
+                  : 'A-4は頷いたが、そのあと壁へ戻る指先のリズムだけは変わらなかった。忘れた方が楽だと言われても、覚えてしまう側の身体は止まらない。';
+              }
+            },
+            { type: 'log', text: '[第2週] 消失個体への記憶保持を確認。', highlight: true }
+          ],
+          3: [
+            { type: 'narration', text: '第3週。配膳口の点検で、A-4が自分の食事の一部を壁の隙間へ押し込もうとしているのを見つけた。隣区画の子が少なそうだったから、と本人は当然のように言う。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '規則違反として報告する',
+                  apply: function (vars, cult) {
+                    vars.reportedFood = true;
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                    cult.stats.trust = clamp(cult.stats.trust - 1, 0, cult.data.statMax);
+                    cult.stats.stress = clamp(cult.stats.stress + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '見なかったことにする',
+                  apply: function (vars, cult) {
+                    vars.reportedFood = false;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                if (vars.reportedFood) {
+                  return '記録票に書き込んだあとも、A-4は「でも、お腹すくと苦しいから」と静かに言った。罰則の説明より先に、苦しさの共有が優先されている。そういう順番で考える個体を、施設はたぶん長く許さない。';
+                }
+                return '黙認した翌週も、A-4は同じことをした。優しさではなく反射に近いのだと分かる。止めれば止めるほど、本人の中で「しない」の方が不自然になる種類の行動だった。';
+              }
+            },
+            { type: 'log', text: '[第3週] 食事共有行為を確認。担当判断を記録。', highlight: true }
+          ],
+          4: [
+            { type: 'dialogue', char: 'aki', text: 'もし誰かが泣いていたら、助けに行ってもいいですか。ルールで決まってますか。決まってないなら、行ってもいいですか。' },
+            { type: 'narration', text: '確認しているのは反抗のためではない。許可をもらえれば、堂々と誰かを助けていいと思っている顔だった。まっすぐで、だから扱いづらい。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '許可が必要だと教える',
+                  apply: function (vars, cult) {
+                    vars.akiPermission = 'rule';
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '気づけること自体は悪くないと伝える',
+                  apply: function (vars, cult) {
+                    vars.akiPermission = 'care';
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.akiPermission === 'care'
+                  ? 'A-4は安心したように息をついた。「よかった。変じゃないなら、まだ大丈夫ですね」と言った。何が大丈夫なのか訊けなかった。'
+                  : 'A-4は真面目に頷き、しばらくしてから「じゃあ、許可を取るまで気づかないふりをするのが正しいですか」と聞いた。正解の形を教えようとすると、すぐにもっと嫌な問いへ化ける。';
+              }
+            },
+            { type: 'log', text: '[第4週] 他個体救助に関する規則確認を記録。', highlight: true }
+          ],
+          5: [
+            { type: 'dialogue', char: 'aki', text: 'わたし、誰かの世話をする仕事がしたいです。子供とか、病気の人とか。そういうの、向いてますか。' },
+            { type: 'dialogue', char: 'player', text: 'どうして、そう思う。' },
+            { type: 'dialogue', char: 'aki', text: '泣いてる人がいると、放っておく方が変な感じがするんです。……これ、設計ですか。それとも、わたしですか。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '設計でも気持ちは気持ちだと答える',
+                  apply: function (vars, cult) {
+                    vars.akiIdentity = 'self';
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '答えを濁して記録に戻る',
+                  apply: function (vars, cult) {
+                    vars.akiIdentity = 'blur';
+                    cult.stats.stress = clamp(cult.stats.stress + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.akiIdentity === 'self'
+                  ? 'A-4は少し黙ってから、「じゃあ、設計でも大事にしていいんですね」と言った。その返しは救いに見えて、同時にひどく危うかった。'
+                  : 'A-4はそれ以上訊かなかった。訊かなかった代わりに、壁を叩くリズムがその日だけ少し乱れた。考え込む個体は、沈黙の中で勝手に答えを育てる。';
+              }
+            },
+            { type: 'log', text: '[第5週] 自己認識と設計意識の揺らぎを確認。', highlight: true }
+          ],
+          6: [
+            { type: 'narration', text: '第6週。区画内で体調を崩した個体が出た日、A-4は指示される前から濡らした布を持って待っていた。手伝わせると動きは正確で、声も落ち着いている。短いあいだだけ、この施設のどこかに本来あるべきケアの形が見えた。' },
+            { type: 'dialogue', char: 'aki', text: 'わたし、何か役に立てましたか。ちゃんと落ち着いてくれたなら、よかった。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '役に立ったと伝える',
+                  apply: function (vars, cult) {
+                    vars.akiPraised = true;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '業務上の偶然だと流す',
+                  apply: function (vars, cult) {
+                    vars.akiPraised = false;
+                    cult.stats.stress = clamp(cult.stats.stress + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'narration',
+              text: function (vars) {
+                return vars.akiPraised
+                  ? 'A-4は本当に嬉しそうだった。評価されたからではなく、自分の中にあるものが誰かを楽にしたと確認できたからだ。その顔を見た直後に、この特性が査定材料として奪われる未来を思い出す。'
+                  : 'A-4は「そうですか」とだけ言ったが、その日は壁を叩く音が少し長く続いた。役に立った実感を持たせないことは管理として正しくても、人としてはかなり卑怯だった。';
+              }
+            },
+            { type: 'log', text: '[第6週] 他個体へのケア補助適性を確認。', highlight: true }
+          ],
+          7: [
+            { type: 'narration', text: '第7週。隣区画で自傷行為が起きた。駆けつけた職員が扉を開けるまで、A-4は壁越しに一定のリズムで「大丈夫」を叩き続けていた。' },
+            { type: 'narration', text: '引き離した直後、隣の個体は急激に取り乱した。施設はA-4の対人影響を「危険な連鎖反応」と記録したが、現場にいたあなたには、それが救命に近い作用だったことも分かっていた。' },
+            {
+              type: 'choice',
+              options: [
+                {
+                  text: '効果があったと記録する',
+                  apply: function (vars, cult) {
+                    vars.akiHelped = true;
+                    cult.stats.trust = clamp(cult.stats.trust + 1, 0, cult.data.statMax);
+                    cult.stats.stress = clamp(cult.stats.stress + 1, 0, cult.data.statMax);
+                  }
+                },
+                {
+                  text: '危険因子という記録に従う',
+                  apply: function (vars, cult) {
+                    vars.akiHelped = false;
+                    cult.stats.obedience = clamp(cult.stats.obedience + 1, 0, cult.data.statMax);
+                  }
+                }
+              ]
+            },
+            {
+              type: 'dialogue',
+              char: 'aki',
+              text: function (vars) {
+                return vars.akiHelped
+                  ? 'わたし、何か役に立てましたか。あの子、少しだけ呼吸、戻ってた気がして。'
+                  : 'わたし、だめでしたか。落ち着くかなと思ったんですけど、余計なことでしたか。';
+              }
+            },
+            { type: 'log', text: '[第7週] 他個体への鎮静作用を確認。査定上は危険因子として記録。', highlight: true }
+          ],
+          8: [
+            { type: 'narration', text: '第8週。知らない職員の出入りが増え、A-4もそれに気づいていた。ただ本人が気にしているのは自分の行き先より、次にこの区画へ来る誰かのことらしかった。' },
+            { type: 'dialogue', char: 'aki', text: 'わたしが行った後、担当さんが担当する子を、少し見ていてあげてください。泣いてても、すぐ規則だけで片づけないで。' },
+            {
+              type: 'narration',
+              text: function (vars, cult) {
+                if ((cult.stats.stress || 0) >= 7) {
+                  return '自分の方が先に消えそうな顔をしているのに、A-4は最後まで他人の話をしていた。その優先順位の異常さが、もう美徳ではなく痛みに見えた。';
+                }
+                return '別れの場面でさえ、自分のことを後ろへ回す。その癖は設計なのか性格なのか、ここまで来るともう区別する意味が薄かった。';
+              }
+            },
+            { type: 'log', text: '[第8週] 育成期間満了。最終面談へ移行。', highlight: true }
           ]
         }
       }

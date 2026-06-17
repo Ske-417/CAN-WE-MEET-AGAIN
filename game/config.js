@@ -5,7 +5,7 @@
     titleImage: './assets/title-main.png',
     startScene: 'opening',
     engine: {
-      typeSpeed: 28,
+      typeSpeed: 45,
       autoDelay: 2200,
       skipDelay: 35,
       saveKey: '__can_we_meet_again_demo__'

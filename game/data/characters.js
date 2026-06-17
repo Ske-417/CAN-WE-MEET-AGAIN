@@ -31,6 +31,12 @@
       }, '#d9d0ff', '#6a5f97', {
         // default: './assets/characters/ren/default.png'
       }),
+      aki: makeCharacter(function (vars) {
+        if (!vars.namedAki) return 'A-4';
+        return vars.akiName || 'アキ';
+      }, '#f1c7b8', '#8a675d', {
+        // default: './assets/characters/aki/default.png'
+      }),
       system: makeCharacter('[ SYSTEM ]', '#6cb6d4', '#4a6f89')
     };
   };

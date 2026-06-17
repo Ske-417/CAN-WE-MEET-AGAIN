@@ -15,6 +15,10 @@
     return !!vars.renCanSpeak;
   }
 
+  function displayAkiName(vars) {
+    return vars.namedAki ? (vars.akiName || 'アキ') : 'A-4';
+  }
+
   function getYukiRoute(vars) {
     if (!vars.yukiCanSpeak && (vars.yukiObedienceScore || 0) >= 10) return 'pet';
     if ((vars.yukiLanguageScore || 0) >= 5 && (vars.yukiStressScore || 0) >= 6) return 'research';
@@ -28,6 +32,13 @@
     if ((vars.renLanguageScore || 0) >= 7 && (vars.renObedienceScore || 0) >= 8) return 'education';
     if ((vars.renTrustScore || 0) >= 8 && vars.reportedMap === false) return 'care';
     return 'medical';
+  }
+
+  function getAkiRoute(vars) {
+    if (vars.akiKnewFate || (vars.akiStressScore || 0) >= 8) return 'medical';
+    if ((vars.akiObedienceScore || 0) >= 9 && (vars.akiStressScore || 0) >= 6) return 'pet';
+    if ((vars.akiTrustScore || 0) >= 8 && vars.reportedFood === false) return 'care';
+    return 'pet';
   }
 
   global.CWMA_buildScenes = function buildScenes() {
@@ -475,7 +486,120 @@
           { type: 'dialogue', char: 'player', text: '少しだけ、ですか。' },
           { type: 'dialogue', char: 'kido', text: 'そのうち分かる。少しだけって言えるうちは、まだ引き返せる気がするから。' },
           { type: 'narration', text: '続ける理由はもう生活だけではなかった。知ってしまったものを、知らなかったことにできないまま、次の扉が開く。' },
-          { type: 'narration', text: 'FIRST PART END / CAN WE MEET AGAIN' },
+          { type: 'goto', target: 'chapterThreeIntro' }
+        ]
+      },
+      chapterThreeIntro: {
+        steps: [
+          { type: 'bg', target: 'briefing' },
+          { type: 'clear_chars' },
+          { type: 'set_var', name: 'akiCanSpeak', value: true },
+          { type: 'char_show', char: 'walter', position: 'left' },
+          { type: 'char_show', char: 'kido', position: 'right' },
+          { type: 'dialogue', char: 'walter', text: 'A-4は対人補助特性を強めた設計個体です。共感反応と介助志向が高い。適切に使えば非常に有用ですが、他個体への干渉が過剰になりやすい。' },
+          { type: 'dialogue', char: 'kido', text: '平たく言うと、放っておけない子。しかも、それが本心か設計か、本人にも分からなくなってる。見てる方にはその方がきつい。' },
+          { type: 'dialogue', char: 'player', text: '優しいこと自体が問題になるんですね。' },
+          { type: 'dialogue', char: 'walter', text: '問題になるのは、用途外の方向へ作用した時です。施設は情動そのものを禁じているわけではありません。管理できない情動を嫌うだけです。' },
+          { type: 'choice', options: [
+            { text: '規則を優先すると決める', goto: 'cultivationAki', setVar: { name: 'akiStance', value: 'rule' } },
+            { text: '本人の反応を見て決める', goto: 'cultivationAki', setVar: { name: 'akiStance', value: 'person' } }
+          ] }
+        ]
+      },
+      cultivationAki: {
+        steps: [
+          { type: 'clear_chars' },
+          { type: 'cultivation', key: 'akiThirdChapter', goto: 'akiFarewell' }
+        ]
+      },
+      akiFarewell: {
+        steps: [
+          { type: 'bg', target: 'departure' },
+          { type: 'char_show', char: 'aki', position: 'center' },
+          {
+            type: 'dialogue',
+            char: 'aki',
+            text: function (vars) {
+              if (vars.akiStressScore >= 8) return 'わたし、何か決まったんですよね。最近みんな、やさしい言い方をするので分かります。';
+              if (vars.akiTrustScore >= 8) return 'わたし、たぶんもうすぐここを出ますよね。……その前に、一個だけお願いしていいですか。';
+              return 'わたし、何か決まったんですよね。まだ決まってないって言われる方が、たぶんちょっと苦しいです。';
+            }
+          },
+          {
+            type: 'choice',
+            options: [
+              { text: 'まだ決まっていないと嘘をつく', goto: 'akiLie', setVar: { name: 'akiFinalResponse', value: 'lie' } },
+              { text: '決まりつつあるとだけ伝える', goto: 'akiHalfTruth', setVar: { name: 'akiFinalResponse', value: 'half' } },
+              { text: '黙って先を促す', goto: 'akiSilence', setVar: { name: 'akiFinalResponse', value: 'silence' } }
+            ]
+          }
+        ]
+      },
+      akiLie: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: 'まだ決まっていない。だから、今は考えなくていい。' },
+          { type: 'dialogue', char: 'aki', text: 'そうですか。……じゃあ、信じるふりをしておきます。担当さん、嘘が下手だから。' },
+          { type: 'narration', text: '責める口調ではなかった。その柔らかさのせいで、かえって逃げ場がなくなった。相手に気を遣わせたまま守る顔をするのが、この施設で覚える一番醜いやり方かもしれなかった。' },
+          { type: 'goto', target: 'chapterThreeReportRouter' }
+        ]
+      },
+      akiHalfTruth: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: '決まりつつある。でも、まだ全部は分からない。' },
+          { type: 'dialogue', char: 'aki', text: 'そうですか。なら、大丈夫です。分からないままの方が、やさしくできる時もありますよね。' },
+          { type: 'narration', text: '大丈夫ではない人間ほど、相手を安心させるための文法だけが上手くなる。A-4は最後までその方向へ育ってしまっていた。' },
+          { type: 'goto', target: 'chapterThreeReportRouter' }
+        ]
+      },
+      akiSilence: {
+        steps: [
+          { type: 'dialogue', char: 'player', text: '……。' },
+          { type: 'dialogue', char: 'aki', text: '分かりました。じゃあ、次の子のこと、少し見ていてあげてください。泣いてても、すぐ規則だけで片づけないで。' },
+          { type: 'narration', text: '自分の話ではなく、最後まで次の誰かの話だった。ここで黙ったのは自分なのに、赦すような言葉だけ向こうから渡される。その形がいちばん堪えた。' },
+          { type: 'goto', target: 'chapterThreeReportRouter' }
+        ]
+      },
+      chapterThreeReportRouter: {
+        steps: [
+          { type: 'set_var', name: 'akiRoute', value: function (vars) { return getAkiRoute(vars); } },
+          { type: 'goto', target: 'akiReportCare', condition: 'vars.akiRoute === "care"' },
+          { type: 'goto', target: 'akiReportMedical', condition: 'vars.akiRoute === "medical"' },
+          { type: 'goto', target: 'akiReportPet' }
+        ]
+      },
+      akiReportCare: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '老夫婦の家庭への配属報告は良好だった。よく気がつき、病人のそばで静かに座り、頼まれなくても水を替え、毛布を直す。褒められるたびに、A-4の優しさは用途の欄へ丁寧に移し替えられていった。' },
+          { type: 'narration', text: '二年後、夫の死去に伴う返送記録が届く。個体が長時間泣き続け、家庭運用に支障、とだけある。誰かをちゃんと大事にできた結果が故障扱いになる世界では、感情は美徳ではなく消耗品だった。' },
+          { type: 'goto', target: 'interludeThree' }
+        ]
+      },
+      akiReportPet: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '最初の適性報告には、関係構築速度が極めて高いとあった。ケアしたいという傾向は、相手を安心させる性能として高く評価された。読み進めるほど、怒りが遅れて込み上げてくる種類の文面だった。' },
+          { type: 'narration', text: '数ヶ月後の追加記録では、特定相手への保護的執着が業務上不適切とされ、調整回数の増加が記されていた。誰かを守ろうとする気持ちが、役に立つ間だけ推奨され、度を越えた瞬間に矯正対象へ反転する。構造そのものに吐き気がした。' },
+          { type: 'goto', target: 'interludeThree' }
+        ]
+      },
+      akiReportMedical: {
+        steps: [
+          { type: 'bg', target: 'ending' },
+          { type: 'narration', text: '移送前夜、A-4は自分が臓器提供に回るのだと知っていたらしい。どうして言わなかったのかと記録を見返しても、答えは後からしか見えてこない。悲しむ人間を先に気遣う方へ育ってしまったからだ。' },
+          { type: 'narration', text: '設計された優しさと本人の優しさを分けて考えようとしていたが、最後にはもうどうでもよくなっていた。どちらであっても、そこに確かに人が傷つく速度で働く心があった。その事実だけで十分だった。' },
+          { type: 'goto', target: 'interludeThree' }
+        ]
+      },
+      interludeThree: {
+        steps: [
+          { type: 'bg', target: 'corridor' },
+          { type: 'char_show', char: 'kido', position: 'right' },
+          { type: 'narration', text: '二年目に入る頃、勤務成績はむしろ安定していた。書類の書き方も、目を逸らす角度も、黙るタイミングも、最初よりずっと上手くなっている。' },
+          { type: 'dialogue', char: 'kido', text: 'お前、うまくなったな。……って言うと嫌そうな顔するけど、ここじゃ褒め言葉なんだよ。' },
+          { type: 'dialogue', char: 'player', text: 'うまくなったというより、感じないふりが上手くなっただけです。' },
+          { type: 'dialogue', char: 'kido', text: 'その違いを言えるうちは、まだ完全には終わってない。問題は、そのうち言わなくても平気になること。' },
+          { type: 'narration', text: 'FIRST ARC END / CHAPTER 3 COMPLETE' },
           { type: 'end' }
         ]
       }
